@@ -4,3 +4,7 @@
 
 # Modding Tools
 The biggest (and the best) mod debugging tool for all your mod testing needs.
+## Special Thanks
+I really owe the people below because if it wasn't for them, I probably wouldn't have made this.
+@ABreaker
+@Antlrr
