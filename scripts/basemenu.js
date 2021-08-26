@@ -1,4 +1,19 @@
 Events.on(ClientLoadEvent, () => {
+    let shown = false
+    function toggle() {
+        const frag = Vars.ui.scriptfrag;
+        frag.clearChildren();
+
+        frag.table(null, t => {
+            t.defaults().size(48);
+
+            t.button(Icon.pencil, Styles.clearTransi, () => frag.toggle());
+            t.button(Icon.trash, Styles.clearTransi, () => frag.clearMessages());
+        });
+
+        frag.visibility = () => shown;
+        shown = (shown == false)
+    }
     let fartsound = loadSound("fart")
     let dialog = new BaseDialog("Modding Tools");
     dialog.addCloseButton();
@@ -114,97 +129,97 @@ Events.on(ClientLoadEvent, () => {
                         p.row();
                         p.table(cons(t => {
                             let myimagecell;
-                            t.field("", s => {
+                            t.field(value.toString(), s => {
                                 if (s === "") return;
-                                myimagecell.get().setDrawable(new TextureRegionDrawable(Core.atlas.find(s)))
-                                unit[key] = Core.atlas.find(s)
-                                });
-                                t.row();
-                                myimagecell = t.image(new TextureRegionDrawable(value))
-                            }));
-                            p.row();
-                        }
-                    }
-                    if (typeof value === "string" || typeof value === "number") {
-                        p.add(new Label(key));
-                        p.row();
-                        //textfield
-                        if (typeof value === "string") {
-                            p.field(value, s => {
-                                if (s === "") return;
-                                unit[key] = s
+                                myimagecell.get().setDrawable(new TextureRegionDrawable(Core.atlas.find(s)));
+                                unit[key] = Core.atlas.find(s);
                             });
-                        };
-                        if (typeof value === "number") {
-                            p.field(value, TextField.TextFieldFilter.digitsOnly, s => {
-                                if (s === "") return;
-                                unit[key] = parseInt(s)
-                            });
-                        };
-                        p.row();
+                            t.row();
+                            myimagecell = t.image(new TextureRegionDrawable(value));
+                        }));
                         p.row();
                     }
-                });
+                }
+                if (typeof value === "string" || typeof value === "number") {
+                    p.add(new Label(key));
+                    p.row();
+                    //textfield
+                    if (typeof value === "string") {
+                        p.field(value, s => {
+                            if (s === "") return;
+                            unit[key] = s
+                        });
+                    };
+                    if (typeof value === "number") {
+                        p.field(value, TextField.TextFieldFilter.digitsOnly, s => {
+                            if (s === "") return;
+                            unit[key] = parseInt(s)
+                        });
+                    };
+                    p.row();
+                    p.row();
+                }
             });
-            unitPane.width(192 * 2);
-            contentUnitsEditDialog.cont.pane(unitSelectPane).width(192 * 2);
-        }
-        unitSelectPane = (p) => {
-            let indec = 0
-            //CHANGE
-            Vars.content.units().each((unit) => {
-                indec = indec + 1
-                let icon = new TextureRegionDrawable(unit.icon(Cicon.full));
-                p.button(icon, () => {
-                    updateUnit(unit)
-                }).size(64);
-                if ((indec % 4) == 0) p.row();
-            });
-        };
+        });
+        unitPane.width(192 * 2);
         contentUnitsEditDialog.cont.pane(unitSelectPane).width(192 * 2);
+    }
+    unitSelectPane = (p) => {
+        let indec = 0
+        //CHANGE
+        Vars.content.units().each((unit) => {
+            indec = indec + 1
+            let icon = new TextureRegionDrawable(unit.icon(Cicon.full));
+            p.button(icon, () => {
+                updateUnit(unit)
+            }).size(64);
+            if ((indec % 4) == 0) p.row();
+        });
+    };
+    contentUnitsEditDialog.cont.pane(unitSelectPane).width(192 * 2);
 
-        /*
+    /*
     edit blocks content dialog
     */
-        let contentBlocksEditDialog = new BaseDialog("Edit");
-        contentBlocksEditDialog.addCloseButton()
-        let blockPane;
-        let selectPane;
-        function updateBlock(block) {
-            // please dont question this code
-            // life will change got me a little
-            // TOO motivated
-            contentBlocksEditDialog.cont.clear();
-            blockPane = contentBlocksEditDialog.cont.pane(p => {
-                p.image(new TextureRegionDrawable(block.icon(Cicon.full)));
-                p.row();
-                p.add(new Label(block.localizedName));
-                p.row();
-                p.row();
-                Object.keys(block).forEach(key => {
-                    let value = block[key];
-                    if (typeof value === "string" || typeof value === "number") {
-                        p.add(new Label(key));
-                        p.row();
-                        //textfield
-                        if (typeof value === "string") {
-                            p.field(value, s => {
-                                if (s === "") return;
-                                block[key] = s
-                            });
-                        };
-                        if (typeof value === "number") {
-                            p.field(value, TextField.TextFieldFilter.digitsOnly, s => {
-                                if (s === "") return;
-                                block[key] = parseInt(s)
-                            });
-                        };
-                        p.row();
-                        p.row()
-                    }
-                });
-                // lmao i just realized this is useless and doesn't actually do anything
-                /*
+    let contentBlocksEditDialog = new BaseDialog("Edit");
+    contentBlocksEditDialog.addCloseButton()
+    let blockPane;
+    let selectPane;
+    function updateBlock(block) {
+        // please dont question this code
+        // life will change got me a little
+        // TOO motivated
+        contentBlocksEditDialog.cont.clear();
+        blockPane = contentBlocksEditDialog.cont.pane(p => {
+            p.image(new TextureRegionDrawable(block.icon(Cicon.full)));
+            p.row();
+            p.add(new Label(block.localizedName));
+            p.row();
+            p.row();
+            Object.keys(block).forEach(key => {
+                let value = block[key];
+                if (typeof value === "string" || typeof value === "number") {
+                    p.add(new Label(key));
+                    p.row();
+                    //textfield
+                    if (typeof value === "string") {
+                        p.field(value, s => {
+                            if (s === "") return;
+                            block[key] = s
+                        });
+                    };
+                    if (typeof value === "number") {
+                        p.field(value, TextField.TextFieldFilter.digitsOnly, s => {
+                            if (s === "") return;
+                            block[key] = parseInt(s)
+                        });
+                    };
+                    p.row();
+                    p.row()
+                }
+            });
+            // lmao i just realized this is useless and doesn't actually do anything
+            /*
             let visibilities = [
                 BuildVisibility.hidden,
                 BuildVisibility.shown,
@@ -234,24 +249,24 @@ Events.on(ClientLoadEvent, () => {
 
             p.add(slider);
             */
-            });
-            blockPane.width(192 * 2);
-            contentBlocksEditDialog.cont.pane(selectPane).width(192 * 2);
-        }
-        selectPane = (p) => {
-            let indec = 0
-            Vars.content.blocks().each((block) => {
-                indec = indec + 1
-                let icon = new TextureRegionDrawable(block.icon(Cicon.full));
-                p.button(icon, () => {
-                    updateBlock(block)
-                }).size(64);
-                if ((indec % 4) == 0) p.row();
-            });
-        };
+        });
+        blockPane.width(192 * 2);
         contentBlocksEditDialog.cont.pane(selectPane).width(192 * 2);
+    }
+    selectPane = (p) => {
+        let indec = 0
+        Vars.content.blocks().each((block) => {
+            indec = indec + 1
+            let icon = new TextureRegionDrawable(block.icon(Cicon.full));
+            p.button(icon, () => {
+                updateBlock(block)
+            }).size(64);
+            if ((indec % 4) == 0) p.row();
+        });
+    };
+    contentBlocksEditDialog.cont.pane(selectPane).width(192 * 2);
 
-        /*
+    /*
     Object.keys(block).forEach(key => {
                 let value = block[key];
                 if (typeof value === "string") {
@@ -259,171 +274,171 @@ Events.on(ClientLoadEvent, () => {
                 }
             });
     */
-        /*
+    /*
     units content dialog
     */
-        let contentUnitsDialog = new BaseDialog("Units");
-        contentUnitsDialog.addCloseButton()
+    let contentUnitsDialog = new BaseDialog("Units");
+    contentUnitsDialog.addCloseButton()
 
-        contentUnitsDialog.cont.button("Edit",
-            Icon.edit,
-            () => {
-                contentUnitsEditDialog.show();
-            }).width(280).height(60);
-        contentUnitsDialog.cont.row();
+    contentUnitsDialog.cont.button("Edit",
+        Icon.edit,
+        () => {
+            contentUnitsEditDialog.show();
+        }).width(280).height(60);
+    contentUnitsDialog.cont.row();
 
-        contentUnitsDialog.cont.button("Spawn",
-            Icon.add,
-            () => {
-                spawner.show();
-            }).width(280).height(60);
-        /*
+    contentUnitsDialog.cont.button("Spawn",
+        Icon.add,
+        () => {
+            spawner.show();
+        }).width(280).height(60);
+    /*
     blocks content dialog
     */
-        let contentBlocksDialog = new BaseDialog("Blocks");
-        contentBlocksDialog.addCloseButton()
+    let contentBlocksDialog = new BaseDialog("Blocks");
+    contentBlocksDialog.addCloseButton()
 
-        contentBlocksDialog.cont.button("Edit",
-            Icon.edit,
-            () => {
-                contentBlocksEditDialog.show();
-            }).width(280).height(60);
-        /*
+    contentBlocksDialog.cont.button("Edit",
+        Icon.edit,
+        () => {
+            contentBlocksEditDialog.show();
+        }).width(280).height(60);
+    /*
     tables dialog
     */
-        let string;
-        let tableDialog = new BaseDialog("Table Editor");
-        tableDialog.addCloseButton();
+    let string;
+    let tableDialog = new BaseDialog("Table Editor");
+    tableDialog.addCloseButton();
 
-        tableDialog.cont.add(new Label("insert code"));
-        tableDialog.cont.row();
-        tableDialog.cont.field("",
-            s => {
-                if (s === "") return;
-                string = s
-            });
-        tableDialog.cont.row();
-        tableDialog.cont.button("Preview",
-            () => {
-                try {
-                    let evaledDialog = new BaseDialog("Preview");
-                    evaledDialog.addCloseButton();
-                    // eval(string)
-                    evaledDialog.cont.table(cons(t => eval(string)));
-                    evaledDialog.show()
-                } catch (e) {
-                    tableDialog.cont.row();
-                    tableDialog.cont.pane(p => {
-                        p.add(new Label(e.toString()))
-                    })
-                }
-            }).width(280).height(60);
+    tableDialog.cont.add(new Label("insert code"));
+    tableDialog.cont.row();
+    tableDialog.cont.field("",
+        s => {
+            if (s === "") return;
+            string = s
+        });
+    tableDialog.cont.row();
+    tableDialog.cont.button("Preview",
+        () => {
+            try {
+                let evaledDialog = new BaseDialog("Preview");
+                evaledDialog.addCloseButton();
+                // eval(string)
+                evaledDialog.cont.table(cons(t => eval(string)));
+                evaledDialog.show()
+            } catch (e) {
+                tableDialog.cont.row();
+                tableDialog.cont.pane(p => {
+                    p.add(new Label(e.toString()))
+                })
+            }
+        }).width(280).height(60);
 
-        /*
+    /*
     terminal dialog
     */
-        let terminalDialog = new BaseDialog("Terminal");
-        terminalDialog.addCloseButton();
+    let terminalDialog = new BaseDialog("Terminal");
+    terminalDialog.addCloseButton();
 
-        /*
+    /*
     effects dialog
     */
-        let effectString;
-        let effectsDialog = new BaseDialog("Effect Spawner");
-        effectsDialog.addCloseButton();
+    let effectString;
+    let effectsDialog = new BaseDialog("Effect Spawner");
+    effectsDialog.addCloseButton();
 
-        effectsDialog.cont.field("",
-            s => {
-                if (s === "") return;
-                effectString = s
-            });
-        effectsDialog.cont.row();
-        effectsDialog.cont.button("Spawn",
-            () => {
-                effectsDialog.hide();
-                dialog.hide();
-                let evalEffect = new Effect(120, (e) => eval(effectString))
-                evalEffect.at(Vars.player.x, Vars.player.y, 0);
-            }).width(280).height(60);
+    effectsDialog.cont.field("",
+        s => {
+            if (s === "") return;
+            effectString = s
+        });
+    effectsDialog.cont.row();
+    effectsDialog.cont.button("Spawn",
+        () => {
+            effectsDialog.hide();
+            dialog.hide();
+            let evalEffect = new Effect(120, (e) => eval(effectString))
+            evalEffect.at(Vars.player.x, Vars.player.y, 0);
+        }).width(280).height(60);
 
-        /*
+    /*
     content dialog
     */
-        let contentDialog = new BaseDialog("Content");
-        contentDialog.addCloseButton();
+    let contentDialog = new BaseDialog("Content");
+    contentDialog.addCloseButton();
 
-        contentDialog.cont.button("Blocks",
-            () => {
-                contentBlocksDialog.show();
-            }).width(280).height(60);
+    contentDialog.cont.button("Blocks",
+        () => {
+            contentBlocksDialog.show();
+        }).width(280).height(60);
 
-        contentDialog.cont.row();
+    contentDialog.cont.row();
 
-        contentDialog.cont.button("Units",
-            () => {
-                contentUnitsDialog.show();
-            }).width(280).height(60);
-        /*
+    contentDialog.cont.button("Units",
+        () => {
+            contentUnitsDialog.show();
+        }).width(280).height(60);
+    /*
     base dialog
     */
 
-        dialog.cont.button("Content",
-            Icon.book,
-            () => {
-                contentDialog.show();
-            }).width(280).height(60);
-        dialog.cont.row();
+    dialog.cont.button("Content",
+        Icon.book,
+        () => {
+            contentDialog.show();
+        }).width(280).height(60);
+    dialog.cont.row();
 
-        dialog.cont.button("Effects",
-            Icon.fileImage,
-            () => {
-                effectsDialog.show();
-            }).width(280).height(60);
-        dialog.cont.row();
+    dialog.cont.button("Effects",
+        Icon.fileImage,
+        () => {
+            effectsDialog.show();
+        }).width(280).height(60);
+    dialog.cont.row();
 
-        dialog.cont.button("Table",
-            Icon.edit,
-            () => {
-                tableDialog.show();
-            }).width(280).height(60);
-        dialog.cont.row();
+    dialog.cont.button("Table",
+        Icon.edit,
+        () => {
+            tableDialog.show();
+        }).width(280).height(60);
+    dialog.cont.row();
 
-        dialog.cont.button("Terminal",
-            Icon.terminal,
-            () => {
-                // terminalDialog.show();
-                Vars.ui.announce("not yet");
-            }).width(280).height(60);
-        dialog.cont.row();
+    dialog.cont.button("Terminal",
+        Icon.terminal,
+        () => {
+            // terminalDialog.show();
+            toggle();
+        }).width(280).height(60);
+    dialog.cont.row();
 
-        dialog.cont.button("Extra",
-            Icon.star,
-            () => {
-                extraDialog.show();
-            }).width(280).height(60);
+    dialog.cont.button("Extra",
+        Icon.star,
+        () => {
+            extraDialog.show();
+        }).width(280).height(60);
 
-        /*
+    /*
     adding the button
     */
-        if (Vars.mobile) {
-            const tl = Vars.ui.hudGroup.getChildren().get(3);
-            const mobile = tl.find("mobile buttons"),
-            stat = tl.cells;
+    if (Vars.mobile) {
+        const tl = Vars.ui.hudGroup.getChildren().get(3);
+        const mobile = tl.find("mobile buttons"),
+        stat = tl.cells;
 
-            if (!tl || !mobile || !stat) return;
+        if (!tl || !mobile || !stat) return;
 
-            mobile.button(Icon.wrench, Styles.clearTransi, () => {
+        mobile.button(Icon.wrench, Styles.clearTransi, () => {
+            dialog.show();
+        }).name("modding-tools");
+
+        mobile.image().color(Pal.gray).width(4).fill();
+
+        // align 'waves/editor' table to the left
+        stat.get(2).left();
+    } else {
+        Events.run(Trigger.update, () => {
+            if (Vars.state.isGame() && Core.input.keyTap(KeyCode.n)) {
                 dialog.show();
-            }).name("modding-tools");
-
-            mobile.image().color(Pal.gray).width(4).fill();
-
-            // align 'waves/editor' table to the left
-            stat.get(2).left();
-        } else {
-            Events.run(Trigger.update, () => {
-                if (Vars.state.isGame() && Core.input.keyTap(KeyCode.n)) {
-                    dialog.show();
-                }});
-        }
-    });
+            }});
+    }
+});
