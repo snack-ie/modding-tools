@@ -102,7 +102,12 @@ Events.on(ClientLoadEvent, () => {
             p.row();
             p.row();
             Object.keys(unit).forEach(key => {
-                let value = unit[key];
+                let value;
+                try {
+                    value = unit[key];
+                } catch(e) {
+                    return;
+                }
                 if (typeof value === "string" || typeof value === "number") {
                     p.add(new Label(key));
                     p.row();
@@ -140,7 +145,7 @@ Events.on(ClientLoadEvent, () => {
         });
     };
     contentUnitsEditDialog.cont.pane(unitSelectPane).width(192 * 2);
-    
+
     /*
     edit blocks content dialog
     */
@@ -302,25 +307,27 @@ Events.on(ClientLoadEvent, () => {
     */
     let terminalDialog = new BaseDialog("Terminal");
     terminalDialog.addCloseButton();
-    
+
     /*
     effects dialog
     */
     let effectString;
     let effectsDialog = new BaseDialog("Effect Spawner");
     effectsDialog.addCloseButton();
-    
-    effectsDialog.cont.field("", s => {
-        if (s === "") return;
-        effectString = s
-    });
+
+    effectsDialog.cont.field("",
+        s => {
+            if (s === "") return;
+            effectString = s
+        });
     effectsDialog.cont.row();
-    effectsDialog.cont.button("Spawn", () => {
-        effectsDialog.hide();
-        dialog.hide();
-        let evalEffect = new Effect(120, (e) => eval(effectString))
-        evalEffect.at(Vars.player.x, Vars.player.y, 0);
-    }).width(280).height(60);
+    effectsDialog.cont.button("Spawn",
+        () => {
+            effectsDialog.hide();
+            dialog.hide();
+            let evalEffect = new Effect(120, (e) => eval(effectString))
+            evalEffect.at(Vars.player.x, Vars.player.y, 0);
+        }).width(280).height(60);
 
     /*
     content dialog
@@ -353,7 +360,7 @@ Events.on(ClientLoadEvent, () => {
     dialog.cont.button("Effects",
         Icon.fileImage,
         () => {
-           effectsDialog.show();
+            effectsDialog.show();
         }).width(280).height(60);
     dialog.cont.row();
 
