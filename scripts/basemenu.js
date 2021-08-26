@@ -241,6 +241,12 @@ Events.on(ClientLoadEvent, () => {
     */
     let terminalDialog = new BaseDialog("Terminal");
     terminalDialog.addCloseButton();
+    
+    /*
+    effects dialog
+    */
+    let effectsDialog = new BaseDialog("Effect Spawner");
+    effectsDialog.addCloseButton();
 
     /*
     content dialog
@@ -269,6 +275,13 @@ Events.on(ClientLoadEvent, () => {
             contentDialog.show();
         }).width(280).height(60);
     dialog.cont.row();
+
+    dialog.cont.button("Effects",
+        Icon.fileImage,
+        () => {
+           effectsDialog.show();
+        }
+    )
 
     dialog.cont.button("Table",
         Icon.edit,
