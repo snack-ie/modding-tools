@@ -210,12 +210,31 @@ Events.on(ClientLoadEvent, () => {
     */
     let string;
     let tableDialog = new BaseDialog("Table Editor");
+    tableDialog.addCloseButton();
+
+    tableDialog.cont.add(new Label("insert code"));
+    tableDialog.cont.row();
     tableDialog.cont.field("",
         s => {
             if (s === "") return;
             string = s
-        }).height(500);
-    tableDialog.row();
+        });
+    tableDialog.cont.row();
+    tableDialog.cont.button("Preview",
+        () => {
+            try {
+                let evaledDialog = new BaseDialog("Preview");
+                evaledDialog.addCloseButton();
+                // eval(string)
+                evaledDialog.cont.table(cons(t => eval(string)));
+                evaledDialog.show()
+            } catch (e) {
+                tableDialog.cont.row();
+                tableDialog.cont.pane(p => {
+                    p.add(new Label(e.toString()))
+                })
+            }
+        })
 
     /*
     terminal dialog
@@ -295,5 +314,5 @@ Events.on(ClientLoadEvent, () => {
             if (Vars.state.isGame() && Core.input.keyTap(KeyCode.n)) {
                 dialog.show();
             }});
-        }
-    });
+    }
+});
