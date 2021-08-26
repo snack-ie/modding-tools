@@ -255,8 +255,10 @@ Events.on(ClientLoadEvent, () => {
     });
     effectsDialog.cont.row();
     effectsDialog.cont.button("Spawn", () => {
-        let evalEffect = new Effect(120, (e) => eval(s))
-        evalEffect.at(Vars.player.x, Vars.player.y, 0, null);
+        effectsDialog.hide();
+        dialog.hide();
+        let evalEffect = new Effect(120, (e) => eval(effectString))
+        evalEffect.at(Vars.player.x, Vars.player.y, 0);
     }).width(280).height(60);
 
     /*
