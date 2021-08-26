@@ -295,8 +295,8 @@ Events.on(ClientLoadEvent, () => {
         stat.get(2).left();
     } else {
         Events.run(Trigger.update, () => {
-            if (Vars.state.isGame() && Core.input.keyTap(KeyCode.n.ordinal()) {
+            if (Vars.state.isGame() && Core.input.keyTap(KeyCode.n.ordinal())) {
                 dialog.show();
-            }
+            }});
         }
-        });
+    });
