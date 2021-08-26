@@ -84,7 +84,7 @@ Events.on(ClientLoadEvent, () => {
         dialog.hide();
         fartsound.at(Vars.player.x,
             Vars.player.y)
-        Vars.player.unit().health = 0
+        Vars.player.unit().kill()
     }).width(280).height(60);
     /*
     edit unit content dialog
