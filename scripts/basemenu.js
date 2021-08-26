@@ -278,17 +278,25 @@ Events.on(ClientLoadEvent, () => {
     /*
     adding the button
     */
-    const tl = Vars.ui.hudGroup.getChildren().get(3);
-    const mobile = tl.find("mobile buttons"), stat = tl.cells;
+    if (Vars.mobile) {
+        const tl = Vars.ui.hudGroup.getChildren().get(3);
+        const mobile = tl.find("mobile buttons"),
+        stat = tl.cells;
 
-    if (!tl || !mobile || !stat) return;
+        if (!tl || !mobile || !stat) return;
 
-    mobile.button(Icon.wrench, Styles.clearTransi, () => {
-        dialog.show();
-    }).name("modding-tools");
+        mobile.button(Icon.wrench, Styles.clearTransi, () => {
+            dialog.show();
+        }).name("modding-tools");
 
-    mobile.image().color(Pal.gray).width(4).fill();
+        mobile.image().color(Pal.gray).width(4).fill();
 
-    // align 'waves/editor' table to the left
-    stat.get(2).left();
-});
+        // align 'waves/editor' table to the left
+        stat.get(2).left();
+    } else {
+        Events.run(Trigger.update, () => {
+            if (Vars.state.isGame() && Core.input.keyTap(KeyCode.n.ordinal()) {
+                dialog.show();
+            }
+        }
+        });
