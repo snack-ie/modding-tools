@@ -2,7 +2,7 @@ Events.on(ClientLoadEvent, () => {
     let fartsound = loadSound("fart")
     let dialog = new BaseDialog("Modding Tools");
     dialog.addCloseButton();
-    
+
     //unit spawn dialog stolen from Abreaker
     let spawner = new BaseDialog("Spawn");
 
@@ -50,7 +50,8 @@ Events.on(ClientLoadEvent, () => {
                 unit.set(Vars.player.x, Vars.player.y);
                 unit.add();
             }
-        }).size(120, 64)
+        }).size(120,
+        64)
 
     spawner.cont.add(s);
     // icons menu
@@ -81,7 +82,8 @@ Events.on(ClientLoadEvent, () => {
     extraDialog.cont.button("fart", Icon.warning, () => {
         extraDialog.hide();
         dialog.hide();
-        fartsound.at(Vars.player.x, Vars.player.y)
+        fartsound.at(Vars.player.x,
+            Vars.player.y)
         Vars.player.unit().health = 0
     }).width(280).height(60);
 
@@ -204,6 +206,18 @@ Events.on(ClientLoadEvent, () => {
             contentBlocksEditDialog.show();
         }).width(280).height(60);
     /*
+    tables dialog
+    */
+    let string;
+    let tableDialog = new BaseDialog("Table Editor");
+    tableDialog.cont.field("",
+        s => {
+            if (s === "") return;
+            string = s
+        }).height(500);
+    tableDialog.row();
+
+    /*
     terminal dialog
     */
     let terminalDialog = new BaseDialog("Terminal");
@@ -235,7 +249,14 @@ Events.on(ClientLoadEvent, () => {
         () => {
             contentDialog.show();
         }).width(280).height(60);
-    dialog.cont.row()
+    dialog.cont.row();
+
+    dialog.cont.button("Table",
+        Icon.edit,
+        () => {
+            tableDialog.show();
+        });
+    dialog.cont.row();
 
     dialog.cont.button("Terminal",
         Icon.terminal,
@@ -250,6 +271,9 @@ Events.on(ClientLoadEvent, () => {
         () => {
             extraDialog.show();
         }).width(280).height(60);
+
+    importPackage(Packages.arc.Flabel)
+    dialog.cont.add(new Label("{wave}{rainbow}gay level 100"))
 
     /*
     adding the button
