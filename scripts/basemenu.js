@@ -234,7 +234,7 @@ Events.on(ClientLoadEvent, () => {
                     p.add(new Label(e.toString()))
                 })
             }
-        })
+        }).width(280).height(60);
 
     /*
     terminal dialog
@@ -245,8 +245,19 @@ Events.on(ClientLoadEvent, () => {
     /*
     effects dialog
     */
+    let effectString;
     let effectsDialog = new BaseDialog("Effect Spawner");
     effectsDialog.addCloseButton();
+    
+    effectsDialog.cont.field("", s => {
+        if (s === "") return;
+        effectString = s
+    });
+    effectsDialog.cont.row();
+    effectsDialog.cont.button("Spawn", () => {
+        let evalEffect = new Effect(120, (e) => eval(s))
+        evalEffect.at(Vars.player.x, Vars.player.y, 0, null);
+    }).width(280).height(60);
 
     /*
     content dialog
@@ -280,8 +291,8 @@ Events.on(ClientLoadEvent, () => {
         Icon.fileImage,
         () => {
            effectsDialog.show();
-        }
-    )
+        }).width(280).height(60);
+    dialog.cont.row();
 
     dialog.cont.button("Table",
         Icon.edit,
