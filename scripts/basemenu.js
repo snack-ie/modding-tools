@@ -1,4 +1,58 @@
 Events.on(ClientLoadEvent, () => {
+    let fartsound = loadSound("fart")
+    let dialog = new BaseDialog("Modding Tools");
+    dialog.addCloseButton();
+    
+    //unit spawn dialog stolen from Abreaker
+    let spawner = new BaseDialog("Spawn");
+
+    spawner.addCloseButton();
+
+    spawner.cont.image().color(Pal.accent).fillX().height(3).pad(3);
+    spawner.cont.row();
+
+    let selected = UnitTypes.dagger
+    let list = new Table();
+    const units = Vars.content.units();
+    units.sort();
+    let i = 0;
+    units.each(unit => {
+        if (unit.isHidden()) return;
+        if ((i++ % 6) == 0) list.row();
+        const ic = new TextureRegionDrawable(unit.icon(Cicon.full));
+        list.button(ic, () => {
+            selected = unit;
+            //button.style.imageUp = ic;
+        }).size(96);
+    });
+    list.top().center();
+    spawner.cont.row();
+
+    let t = new Table();
+    t.left().bottom();
+    t.defaults().left();
+
+    spawner.cont.add(t);
+    spawner.cont.row();
+    spawner.cont.pane(list).growX();
+    spawner.cont.row();
+    spawner.cont.image().color(Pal.accent).fillX().height(3).pad(3);
+    spawner.cont.row();
+
+    let s = new Table();
+
+    s.label(() => "Selected: " + selected.localizedName);
+
+    s.button("Spawn",
+        () => {
+            if (Units.canCreate(Vars.player.team(), selected)) {
+                let unit = selected.create(Vars.player.team());
+                unit.set(Vars.player.x, Vars.player.y);
+                unit.add();
+            }
+        }).size(120, 64)
+
+    spawner.cont.add(s);
     // icons menu
     let iconDialog = new BaseDialog("Icons");
 
@@ -20,8 +74,15 @@ Events.on(ClientLoadEvent, () => {
     let extraDialog = new BaseDialog("Extra");
     extraDialog.addCloseButton();
 
-    extraDialog.cont.button("Icons", () => {
+    extraDialog.cont.button("Icons", Icon.bookOpen, () => {
         iconDialog.show();
+    }).width(280).height(60);
+    extraDialog.cont.row()
+    extraDialog.cont.button("fart", Icon.warning, () => {
+        extraDialog.hide();
+        dialog.hide();
+        fartsound.at(Vars.player.x, Vars.player.y)
+        Vars.player.unit().health = 0
     }).width(280).height(60);
 
     /*
@@ -107,7 +168,6 @@ Events.on(ClientLoadEvent, () => {
             p.button(icon, () => {
                 updateBlock(block)
             }).size(64);
-            print(indec % 4)
             if ((indec % 4) == 0) p.row();
         });
     };
@@ -122,6 +182,17 @@ Events.on(ClientLoadEvent, () => {
             });
     */
     /*
+    units content dialog
+    */
+    let contentUnitsDialog = new BaseDialog("Units");
+    contentUnitsDialog.addCloseButton()
+
+    contentUnitsDialog.cont.button("Spawn",
+        Icon.add,
+        () => {
+            spawner.show();
+        }).width(280).height(60);
+    /*
     blocks content dialog
     */
     let contentBlocksDialog = new BaseDialog("Blocks");
@@ -132,12 +203,12 @@ Events.on(ClientLoadEvent, () => {
         () => {
             contentBlocksEditDialog.show();
         }).width(280).height(60);
-    /* 
+    /*
     terminal dialog
     */
     let terminalDialog = new BaseDialog("Terminal");
     terminalDialog.addCloseButton();
-    
+
     /*
     content dialog
     */
@@ -158,8 +229,6 @@ Events.on(ClientLoadEvent, () => {
     /*
     base dialog
     */
-    let dialog = new BaseDialog("Modding Tools");
-    dialog.addCloseButton();
 
     dialog.cont.button("Content",
         Icon.book,
@@ -167,18 +236,20 @@ Events.on(ClientLoadEvent, () => {
             contentDialog.show();
         }).width(280).height(60);
     dialog.cont.row()
-    
+
     dialog.cont.button("Terminal",
         Icon.terminal,
         () => {
-            terminalDialog.show();
+            // terminalDialog.show();
+            Vars.ui.announce("not yet");
         }).width(280).height(60);
     dialog.cont.row();
 
     dialog.cont.button("Extra",
-        Icon.star, () => {
+        Icon.star,
+        () => {
             extraDialog.show();
-    }).width(280).height(60);
+        }).width(280).height(60);
 
     /*
     adding the button
