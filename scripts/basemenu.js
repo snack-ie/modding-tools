@@ -86,7 +86,61 @@ Events.on(ClientLoadEvent, () => {
             Vars.player.y)
         Vars.player.unit().health = 0
     }).width(280).height(60);
-
+    /*
+    edit unit content dialog
+    */
+    let contentUnitsEditDialog = new BaseDialog("Edit");
+    contentUnitsEditDialog.addCloseButton();
+    let unitPane;
+    let unitSelectPane;
+    function updateUnit(unit) {
+        contentUnitsEditDialog.cont.clear();
+        unitPane = contentUnitsEditDialog.cont.pane(p => {
+            p.image(new TextureRegionDrawable(unit.icon(Cicon.full)));
+            p.row();
+            p.add(new Label(unit.localizedName));
+            p.row();
+            p.row();
+            Object.keys(unit).forEach(key => {
+                let value = unit[key];
+                if (typeof value === "string" || typeof value === "number") {
+                    p.add(new Label(key));
+                    p.row();
+                    //textfield
+                    if (typeof value === "string") {
+                        p.field(value, s => {
+                            if (s === "") return;
+                            unit[key] = s
+                        });
+                    };
+                    if (typeof value === "number") {
+                        p.field(value, TextField.TextFieldFilter.digitsOnly, s => {
+                            if (s === "") return;
+                            unit[key] = parseInt(s)
+                        });
+                    };
+                    p.row();
+                    p.row();
+                }
+            });
+        });
+        unitPane.width(192 * 2);
+        contentUnitsEditDialog.cont.pane(unitSelectPane).width(192 * 2);
+    }
+    unitSelectPane = (p) => {
+        let indec = 0
+        //CHANGE
+        Vars.content.units().each((unit) => {
+            indec = indec + 1
+            let icon = new TextureRegionDrawable(unit.icon(Cicon.full));
+            p.button(icon, () => {
+                updateUnit(unit)
+            }).size(64);
+            if ((indec % 4) == 0) p.row();
+        });
+    };
+    contentUnitsEditDialog.cont.pane(unitSelectPane).width(192 * 2);
+    
     /*
     edit blocks content dialog
     */
@@ -188,6 +242,13 @@ Events.on(ClientLoadEvent, () => {
     */
     let contentUnitsDialog = new BaseDialog("Units");
     contentUnitsDialog.addCloseButton()
+
+    contentUnitsDialog.cont.button("Edit",
+        Icon.edit,
+        () => {
+            contentUnitsEditDialog.show();
+        }).width(280).height(60);
+    contentUnitsDialog.cont.row();
 
     contentUnitsDialog.cont.button("Spawn",
         Icon.add,
