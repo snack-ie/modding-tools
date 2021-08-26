@@ -255,7 +255,7 @@ Events.on(ClientLoadEvent, () => {
         Icon.edit,
         () => {
             tableDialog.show();
-        });
+        }).width(280).height(60);
     dialog.cont.row();
 
     dialog.cont.button("Terminal",
@@ -271,9 +271,6 @@ Events.on(ClientLoadEvent, () => {
         () => {
             extraDialog.show();
         }).width(280).height(60);
-
-    importPackage(Packages.arc.Flabel)
-    dialog.cont.add(new Label("{wave}{rainbow}gay level 100"))
 
     /*
     adding the button
