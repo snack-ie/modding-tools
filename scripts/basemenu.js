@@ -1,5 +1,14 @@
+// [REQUIRE]
+
+let loadedClient = false;
+let select = require("selector");
+
 Events.on(ClientLoadEvent, () => {
-    let shown = false
+    loadedClient = true;
+
+    // [SHOW_TERMINAL]
+
+    let shown = false;
     function toggle() {
         const frag = Vars.ui.scriptfrag;
         frag.clearChildren();
@@ -12,13 +21,25 @@ Events.on(ClientLoadEvent, () => {
         });
 
         frag.visibility = () => shown;
-        shown = (shown == false)
+        shown = (shown == false);
     }
-    let fartsound = loadSound("fart")
+
+    // [FART]
+
+    let fartsound = loadSound("fart");
+    function farter() {
+        fartsound.at(Vars.player.x,
+            Vars.player.y);
+        Vars.player.unit().kill();
+    }
+
+    // [DIALOG]
+
     let dialog = new BaseDialog("Modding Tools");
     dialog.addCloseButton();
 
-    //unit spawn dialog stolen from Abreaker
+    // [SPAWNER]
+
     let spawner = new BaseDialog("Spawn");
 
     spawner.addCloseButton();
@@ -26,7 +47,7 @@ Events.on(ClientLoadEvent, () => {
     spawner.cont.image().color(Pal.accent).fillX().height(3).pad(3);
     spawner.cont.row();
 
-    let selected = UnitTypes.dagger
+    let selected = UnitTypes.dagger;
     let list = new Table();
     const units = Vars.content.units();
     units.sort();
@@ -58,6 +79,8 @@ Events.on(ClientLoadEvent, () => {
 
     s.label(() => "Selected: " + selected.localizedName);
 
+    s.row();
+
     s.button("Spawn",
         () => {
             if (Units.canCreate(Vars.player.team(), selected)) {
@@ -66,10 +89,12 @@ Events.on(ClientLoadEvent, () => {
                 unit.add();
             }
         }).size(120,
-        64)
+        64);
 
     spawner.cont.add(s);
-    // icons menu
+
+    // [ICONS]
+
     let iconDialog = new BaseDialog("Icons");
 
     iconDialog.addCloseButton();
@@ -86,185 +111,31 @@ Events.on(ClientLoadEvent, () => {
             if (++r % 10 == 0) t.row();
         });
     }).size(640, 640);
-    // extra dialog
+
+    // [EXTRA]
+
     let extraDialog = new BaseDialog("Extra");
     extraDialog.addCloseButton();
 
     extraDialog.cont.button("Icons", Icon.bookOpen, () => {
         iconDialog.show();
     }).width(280).height(60);
-    extraDialog.cont.row()
+    extraDialog.cont.row();
     extraDialog.cont.button("fart", Icon.warning, () => {
         extraDialog.hide();
         dialog.hide();
-        fartsound.at(Vars.player.x,
-            Vars.player.y)
-        Vars.player.unit().kill()
+        farter();
     }).width(280).height(60);
-    /*
-    edit unit content dialog
-    */
+
+    // [EDIT] [UNIT]
+
     let contentUnitsEditDialog = new BaseDialog("Edit");
-    contentUnitsEditDialog.addCloseButton();
-    let unitPane;
-    let unitSelectPane;
-    function updateUnit(unit) {
-        contentUnitsEditDialog.cont.clear();
-        unitPane = contentUnitsEditDialog.cont.pane(p => {
-            p.image(new TextureRegionDrawable(unit.icon(Cicon.full)));
-            p.row();
-            p.add(new Label(unit.localizedName));
-            p.row();
-            p.row();
-            Object.keys(unit).forEach(key => {
-                let value;
-                try {
-                    value = unit[key];
-                } catch(e) {
-                    return;
-                }
-                if (typeof value === "object") {
-                    if (value instanceof TextureRegion) {
-                        p.add(new Label(key));
-                        p.row();
-                        p.table(cons(t => {
-                            let myimagecell;
-                            t.field(value.toString(), s => {
-                                if (s === "") return;
-                                myimagecell.get().setDrawable(new TextureRegionDrawable(Core.atlas.find(s)));
-                                unit[key] = Core.atlas.find(s);
-                            });
-                            t.row();
-                            myimagecell = t.image(new TextureRegionDrawable(value));
-                        }));
-                        p.row();
-                    }
-                }
-                if (typeof value === "string" || typeof value === "number") {
-                    p.add(new Label(key));
-                    p.row();
-                    //textfield
-                    if (typeof value === "string") {
-                        p.field(value, s => {
-                            if (s === "") return;
-                            unit[key] = s
-                        });
-                    };
-                    if (typeof value === "number") {
-                        p.field(value, TextField.TextFieldFilter.digitsOnly, s => {
-                            if (s === "") return;
-                            unit[key] = parseInt(s)
-                        });
-                    };
-                    p.row();
-                    p.row();
-                }
-            });
-        });
-        unitPane.width(192 * 2);
-        contentUnitsEditDialog.cont.pane(unitSelectPane).width(192 * 2);
-    }
-    unitSelectPane = (p) => {
-        let indec = 0
-        //CHANGE
-        Vars.content.units().each((unit) => {
-            indec = indec + 1
-            let icon = new TextureRegionDrawable(unit.icon(Cicon.full));
-            p.button(icon, () => {
-                updateUnit(unit)
-            }).size(64);
-            if ((indec % 4) == 0) p.row();
-        });
-    };
-    contentUnitsEditDialog.cont.pane(unitSelectPane).width(192 * 2);
+    select(contentUnitsEditDialog, Vars.content.units());
 
-    /*
-    edit blocks content dialog
-    */
+    // [EDIT] [BLOCKS]
+
     let contentBlocksEditDialog = new BaseDialog("Edit");
-    contentBlocksEditDialog.addCloseButton()
-    let blockPane;
-    let selectPane;
-    function updateBlock(block) {
-        // please dont question this code
-        // life will change got me a little
-        // TOO motivated
-        contentBlocksEditDialog.cont.clear();
-        blockPane = contentBlocksEditDialog.cont.pane(p => {
-            p.image(new TextureRegionDrawable(block.icon(Cicon.full)));
-            p.row();
-            p.add(new Label(block.localizedName));
-            p.row();
-            p.row();
-            Object.keys(block).forEach(key => {
-                let value = block[key];
-                if (typeof value === "string" || typeof value === "number") {
-                    p.add(new Label(key));
-                    p.row();
-                    //textfield
-                    if (typeof value === "string") {
-                        p.field(value, s => {
-                            if (s === "") return;
-                            block[key] = s
-                        });
-                    };
-                    if (typeof value === "number") {
-                        p.field(value, TextField.TextFieldFilter.digitsOnly, s => {
-                            if (s === "") return;
-                            block[key] = parseInt(s)
-                        });
-                    };
-                    p.row();
-                    p.row()
-                }
-            });
-            // lmao i just realized this is useless and doesn't actually do anything
-            /*
-            let visibilities = [
-                BuildVisibility.hidden,
-                BuildVisibility.shown,
-                BuildVisibility.debugOnly,
-                BuildVisibility.editorOnly,
-                BuildVisibility.sandboxOnly,
-                BuildVisibility.campaignOnly,
-                BuildVisibility.lightingOnly,
-                BuildVisibility.ammoOnly
-                ]
-            let visibilitiesName = [
-                "Hidden",
-                "Shown",
-                "Debug Only",
-                "Editor Only",
-                "Sandbox Only",
-                "Campaign Only",
-                "Lighting Only",
-                "Ammo Only"
-                ]
-            let label = p.add(new Label("buildVisibility"))
-            p.row();
-            let slider = new Slider(0, visibilities.length - 1, 1, false);
-            slider.moved((count) => {
-                label.get().text = visibilitiesName[count]
-            });
-
-            p.add(slider);
-            */
-        });
-        blockPane.width(192 * 2);
-        contentBlocksEditDialog.cont.pane(selectPane).width(192 * 2);
-    }
-    selectPane = (p) => {
-        let indec = 0
-        Vars.content.blocks().each((block) => {
-            indec = indec + 1
-            let icon = new TextureRegionDrawable(block.icon(Cicon.full));
-            p.button(icon, () => {
-                updateBlock(block)
-            }).size(64);
-            if ((indec % 4) == 0) p.row();
-        });
-    };
-    contentBlocksEditDialog.cont.pane(selectPane).width(192 * 2);
+    select(contentBlocksEditDialog, Vars.content.blocks());
 
     /*
     Object.keys(block).forEach(key => {
@@ -355,10 +226,17 @@ Events.on(ClientLoadEvent, () => {
     effectsDialog.cont.row();
     effectsDialog.cont.button("Spawn",
         () => {
-            effectsDialog.hide();
-            dialog.hide();
-            let evalEffect = new Effect(120, (e) => eval(effectString))
-            evalEffect.at(Vars.player.x, Vars.player.y, 0);
+            try {
+                let evalEffect = new Effect(120, (e) => eval(effectString))
+                evalEffect.at(Vars.player.x, Vars.player.y, 0);
+                effectsDialog.hide();
+                dialog.hide();
+            } catch (e) {
+                effectsDialog.cont.row();
+                effectsDialog.cont.pane(p => {
+                    p.add(new Label(e.toString()))
+                })
+            }
         }).width(280).height(60);
 
     /*
@@ -437,7 +315,7 @@ Events.on(ClientLoadEvent, () => {
         stat.get(2).left();
     } else {
         Events.run(Trigger.update, () => {
-            if (Vars.state.isGame() && Core.input.keyTap(KeyCode.n)) {
+            if (Vars.state.isGame() && Core.input.keyTap(KeyCode.f9.ordinal())) {
                 dialog.show();
             }});
     }
